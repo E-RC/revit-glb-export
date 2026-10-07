@@ -7,8 +7,10 @@
  Uso: .\install.ps1   (desde el repo o desde la carpeta del instalador)
 #>
 [CmdletBinding()]
-param([string]$Source = (Join-Path $PSScriptRoot 'GLBExport.extension'))
+param([string]$Source)
 $ErrorActionPreference = 'Stop'
+# $PSScriptRoot no esta disponible en el valor por defecto de un parametro en Windows PowerShell 5.1
+if (-not $Source) { $Source = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) 'GLBExport.extension' }
 
 function Step($m) { Write-Host "==> $m" -ForegroundColor Cyan }
 function Find-Node {
