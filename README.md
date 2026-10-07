@@ -32,10 +32,17 @@ Then **restart Revit**. A **GLB** tab appears with the **GLB Export** button.
 
 ### Smart App Control and code signing
 Windows 11 *Smart App Control* (SAC) blocks any DLL that is not signed by a publicly trusted certificate, and Revit add-ins are DLLs. On a PC with SAC on (common on new, managed PCs; it cannot be turned back on once disabled, and IT often controls it):
-- **Signed releases load normally.** Releases are signed with a publicly trusted certificate through [SignPath Foundation](https://signpath.org) when available (see the release notes: each release says whether it is signed).
+- **Signed releases load normally.** Releases are signed with a publicly trusted certificate through [SignPath Foundation](https://signpath.org) once approved (see [Code signing policy](#code-signing-policy); each release says in its notes whether it is signed).
 - **Unsigned builds, including anything you build yourself, are blocked** and Revit shows a "part of this app has been blocked" notice. Ask IT to allow the signer, use a signed release, or disable SAC (Settings > Privacy & security > Windows Security > App & browser control).
 Without SAC (or with a signed release) nothing else is needed.
 
+## Code signing policy
+Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org) (once the application is approved; until then releases are unsigned and say so in their notes).
+
+- **What is signed:** only the add-in DLLs (`GlbExport.dll`) and the installer built by the GitHub Actions workflow in this repository from a tagged commit. Nothing is signed from a developer machine.
+- **Roles:** committers and reviewers: [@E-RC](https://github.com/E-RC). Approver of each signing request: [@E-RC](https://github.com/E-RC). Roles will be extended as contributors join.
+- **Privacy:** this program does not collect or transmit any user data and makes no network connections. The Node.js converter runs locally; the installer downloads Node.js (winget) and npm packages only at install time.
+- **Verification:** each release publishes a SHA-256 file next to the installer.
 ## Use
 1. Open a 3D view.
 2. GLB tab > **GLB Export**. Pick the output file and a profile.
