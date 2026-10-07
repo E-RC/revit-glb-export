@@ -4,3 +4,6 @@ dist/
 *.exr
 .env
 .claude/
+bin/
+obj/
+*.user

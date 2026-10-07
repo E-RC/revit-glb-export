@@ -1,4 +1,4 @@
-; Inno Setup 6. Compilar: ISCC.exe /DAppVersion=1.0.0 installer\GLBExport.iss  (salida en dist\)
+﻿; Inno Setup 6. Compilar: ISCC.exe /DAppVersion=1.0.0 installer\GLBExport.iss  (salida en dist\)
 #ifndef AppVersion
   #define AppVersion "0.0.0"
 #endif
@@ -25,13 +25,15 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\GLBExport.extension\*"; DestDir: "{app}\GLBExport.extension"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "..\dist\addin\*"; DestDir: "{app}\addin"; Flags: recursesubdirs createallsubdirs ignoreversion
 Source: "..\install.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\uninstall.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Run]
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\install.ps1"""; \
-  StatusMsg: "Instalando pyRevit, Node.js y dependencias (puede tardar unos minutos)..."; Flags: runhidden waituntilterminated
+  StatusMsg: "Instalando Node.js, dependencias y el add-in de Revit (puede tardar unos minutos)..."; Flags: runhidden waituntilterminated
 
 [UninstallRun]
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\uninstall.ps1"""; Flags: runhidden waituntilterminated
+
+

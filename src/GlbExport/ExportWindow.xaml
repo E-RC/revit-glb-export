@@ -1,4 +1,5 @@
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<Window x:Class="GlbExport.ExportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="GLB Export" Width="760" Height="700" MinWidth="640" MinHeight="580"
         WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
@@ -75,7 +76,7 @@
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <TextBox x:Name="out_txt" Grid.Column="0" Height="30"/>
-                <Button x:Name="browse_btn" Grid.Column="1" Content="Examinar..." Style="{StaticResource Secondary}" Margin="8,0,0,0" Click="browse_click"/>
+                <Button x:Name="browse_btn" Grid.Column="1" Content="Examinar..." Style="{StaticResource Secondary}" Margin="8,0,0,0" Click="Browse_Click"/>
             </Grid>
             <TextBlock x:Name="view_txt" Foreground="{StaticResource Muted}" Margin="0,5,0,0"/>
         </StackPanel>
@@ -85,7 +86,7 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
                 <TextBlock Text="PERFIL DE OPTIMIZACION" Style="{StaticResource Label}"/>
-                <ComboBox x:Name="preset_cb" Height="30" SelectionChanged="preset_changed"/>
+                <ComboBox x:Name="preset_cb" Height="30" SelectionChanged="Preset_Changed"/>
             </StackPanel>
             <TextBlock Grid.Column="1" Margin="14,18,0,0" TextWrapping="Wrap" Foreground="{StaticResource Muted}"
                        Text="Elige un perfil y ajusta cada categoria abajo. 100 % = sin simplificar. Las piezas chicas nunca se simplifican."/>
@@ -143,8 +144,8 @@
             <TextBlock x:Name="hint_txt" Grid.Column="0" VerticalAlignment="Center" Foreground="{StaticResource Muted}" TextWrapping="Wrap"
                        Text="La exportacion toma unos minutos y Revit queda ocupado."/>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button Content="Cancelar" Style="{StaticResource Secondary}" Margin="0,0,8,0" Click="cancel_click"/>
-                <Button x:Name="export_btn" Content="Exportar" Style="{StaticResource Primary}" Click="export_click"/>
+                <Button Content="Cancelar" Style="{StaticResource Secondary}" Margin="0,0,8,0" Click="Cancel_Click"/>
+                <Button x:Name="export_btn" Content="Exportar" Style="{StaticResource Primary}" Click="Export_Click"/>
             </StackPanel>
         </Grid>
     </Grid>

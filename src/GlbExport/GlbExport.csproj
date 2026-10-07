@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Una configuracion por version de Revit: R23..R27. Compilar: dotnet build -c R24 -->
+  <PropertyGroup>
+    <Configurations>R23;R24;R25;R26;R27</Configurations>
+    <Configuration Condition="'$(Configuration)' == ''">R24</Configuration>
+    <Platform>AnyCPU</Platform>
+    <AssemblyName>GlbExport</AssemblyName>
+    <RootNamespace>GlbExport</RootNamespace>
+    <UseWPF>true</UseWPF>
+    <LangVersion>12</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Version>1.0.0</Version>
+    <Company>Archiplan</Company>
+    <Product>GLB Export for Revit</Product>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <DebugType>none</DebugType>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'R23'">
+    <RevitYear>2023</RevitYear><TargetFramework>net48</TargetFramework><RevitApi>2023.1.90</RevitApi>
+    <DefineConstants>$(DefineConstants);REVIT2023</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R24'">
+    <RevitYear>2024</RevitYear><TargetFramework>net48</TargetFramework><RevitApi>2024.3.60</RevitApi>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R25'">
+    <RevitYear>2025</RevitYear><TargetFramework>net8.0-windows</TargetFramework><RevitApi>2025.4.60</RevitApi>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R26'">
+    <RevitYear>2026</RevitYear><TargetFramework>net8.0-windows</TargetFramework><RevitApi>2026.4.10</RevitApi>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'R27'">
+    <RevitYear>2027</RevitYear><TargetFramework>net10.0-windows</TargetFramework><RevitApi>2027.3.0</RevitApi>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputPath>$(MSBuildThisFileDir)..\..\dist\addin\$(RevitYear)\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitApi)" ExcludeAssets="runtime" />
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitApi)" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\icon.png" />
+  </ItemGroup>
+
+</Project>
