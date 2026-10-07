@@ -1,0 +1,54 @@
+name: ci
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Conversor (Node)
+        run: node --test "GLBExport.extension/GlbExport/test/*.test.cjs"
+      - name: Opciones (Python)
+        working-directory: GLBExport.extension/GLB.tab/Export.panel/GLB Export.pushbutton
+        run: python test_options.py
+
+  release:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inno Setup
+        run: choco install innosetup --no-progress -y
+      - name: Compilar instalador
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}".TrimStart('v')
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$v" installer\GLBExport.iss
+      - name: Hash SHA-256
+        shell: pwsh
+        run: |
+          Get-ChildItem dist\*.exe | ForEach-Object {
+            $h = (Get-FileHash $_ -Algorithm SHA256).Hash.ToLower()
+            "$h  $($_.Name)" | Out-File "$($_.FullName).sha256" -Encoding ascii
+          }
+      - name: Publicar release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.exe
+            dist/*.sha256
+          generate_release_notes: true

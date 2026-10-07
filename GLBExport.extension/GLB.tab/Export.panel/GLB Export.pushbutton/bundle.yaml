@@ -1,0 +1,13 @@
+title: "GLB\nExport"
+author: "Archiplan"
+tooltip: |
+  Exporta la vista 3D activa a un archivo GLB optimizado para WebXR (Meta Quest), con instancias para elementos repetidos.
+
+  Instrucciones:
+  1. Abre la vista 3D que quieres exportar (solo lo visible en esa vista se exporta).
+  2. Ejecuta el comando y elige el archivo de salida y un perfil (Quest, Equilibrado o Sin optimizar).
+  3. Ajusta por categoría cuánto se conserva, el error máximo y si se bloquean los bordes; desmarca las que no quieres exportar.
+  4. Pulsa Exportar y espera: toma unos minutos y Revit queda ocupado.
+
+  Resultado esperado: un .glb con normales e instancias, y un resumen de triángulos y tamaño.
+  Requiere Node.js y las dependencias de GlbExport (las instala el instalador).
