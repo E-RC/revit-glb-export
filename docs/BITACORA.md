@@ -9,26 +9,19 @@ Estado y pendientes del proyecto, para retomarlo desde cualquier equipo (`git cl
 - Pruebas: `node --test "GlbExport/test/*.test.cjs"` (11) y `dotnet test tests/GlbExport.Tests` (9).
 
 ## Problema abierto: Smart App Control (SAC)
-Windows 11 con SAC activo bloquea toda DLL sin firma de una CA pública (también las que compila pyRevit). Solo un release firmado carga en esos equipos. Por eso se pidió firma gratuita a **SignPath Foundation**.
+Windows 11 con SAC activo bloquea toda DLL sin firma de una CA pública (también las que compila pyRevit). Solo un release firmado carga en esos equipos.
 
-## Solicitud a SignPath
-- Enviada el **2026-10-07** por https://signpath.org/apply (proyecto "GLB Export for Revit", mantenedor individual, GitHub Actions). Respuesta esperada por correo al solicitante; puede tardar de días a semanas.
-- Riesgo: el repo es nuevo y sin reputación (estrellas, descargas); pueden rechazar o pedir más datos.
-- La Download URL enviada fue `.../releases`; si exigen mención a SignPath en esa página, poner la atribución en las notas del release (el README ya la tiene: sección "Code signing policy").
+## Firma: SignPath Foundation rechazó (2026-10-07)
+- La solicitud se envió el 2026-10-07 y ese mismo día respondieron que **no la aprueban por ahora**: el programa exige visibilidad pública previa (estrellas, forks, contribuyentes, artículos o discusiones externas, respaldo institucional, actividad sostenida). Se puede reaplicar cuando el proyecto la tenga.
+- Se quitó del README la sección de política de firma gratuita y se aclaró que los releases no están firmados.
 
-## Qué hacer cuando llegue la respuesta
-**Si aprueban:**
-1. Activar la cuenta desde el correo e ingresar a https://app.signpath.io. El ID de organización es el UUID de la URL (`app.signpath.io/Web/<organization-id>/...`).
-2. En SignPath: crear o confirmar el proyecto, vincularlo al repo de GitHub y crear una política de firma (p. ej. `release-signing`) con un *artifact configuration* que firme los `*.dll` de `dist/addin/<año>/` (zip del artefacto `dlls-unsigned`).
-3. En GitHub (Settings > Secrets and variables > Actions):
-   - Variables: `SIGNPATH_ORG_ID`, `SIGNPATH_PROJECT` (slug del proyecto), `SIGNPATH_POLICY` (slug de la política).
-   - Secreto: `SIGNPATH_API_TOKEN` (lo crea el usuario en su perfil de SignPath; no pasarlo por chat ni escribirlo en archivos).
-4. Subir un tag nuevo (`git tag v1.0.1; git push origin v1.0.1`). El job `release` de `.github/workflows/ci.yml` se activa solo cuando `SIGNPATH_ORG_ID` existe: sube las DLL, las firma, recompila el instalador con las firmadas y publica el release.
-5. Probar en un PC con SAC: instalar el `.exe`, reiniciar Revit, comprobar la pestaña **GLB** y exportar una vista 3D. Anotar el resultado aquí.
-6. Quitar la advertencia "NOT code-signed" de las notas y del README.
-
-**Si rechazan o piden más:** responder con datos de uso real (descargas, estrellas, quién lo usa). Alternativas: pedir a soporte informático que permitan al editor en SAC o que firmen las DLL con el certificado de la empresa; o certificado de pago (OV) / Azure Trusted Signing.
-
+## Opciones de firma evaluadas (decisión pendiente)
+1. **SignPath de pago, plan Starter: USD 500 al año.** Incluye certificado EV de GlobalSign y 20 firmas de release al año. GlobalSign verifica la autoridad del solicitante en la organización (unos días). El CI ya está listo: el job `release` de `.github/workflows/ci.yml` firma solo cuando existen las variables `SIGNPATH_ORG_ID`, `SIGNPATH_PROJECT`, `SIGNPATH_POLICY` y el secreto `SIGNPATH_API_TOKEN`. Pasos: crear proyecto y política en app.signpath.io (artifact configuration que firme los `*.dll` de `dist/addin/<año>/`), cargar variables y secreto en GitHub (Settings > Secrets and variables > Actions), subir el tag `v1.0.1`, probar en un PC con SAC y quitar la advertencia de "sin firma".
+2. **Azure Artifact Signing (ex Trusted Signing):** solo organizaciones de EE.UU., Canadá, UE y Reino Unido; Chile no califica.
+3. **Certificado OV o EV comercial** (unos USD 200 a 500 al año; clave en token/HSM o firma en la nube): exige adaptar el CI.
+4. **Soporte informático:** pasar de SAC a una política App Control administrada que confíe en un certificado de la empresa, o desactivar SAC (irreversible).
+5. **Ruta Dynamo (sin DLL nueva):** reescribir el exportador como script de Dynamo/Python. Dynamo y su motor Python vienen firmados con Revit, así que funciona bajo SAC sin certificado. La prueba en vivo ya mostró que cargar el código desde memoria no lo bloquea SAC.
+6. **Reaplicar a SignPath Foundation** cuando haya tracción.
 ## Otros pendientes
 - Probar el add-in en Revit 2023, 2025, 2026 y 2027 y con vínculos.
 - Probar el instalador `.exe` en un PC limpio (sin Node.js).
@@ -38,4 +31,4 @@ Windows 11 con SAC activo bloquea toda DLL sin firma de una CA pública (tambié
 Requiere SDK de .NET 10 (compila 2027), Node 18+ y Inno Setup 6 (solo para el instalador local). `.\build.ps1` compila 2023-2027 en `dist\addin`; `.\install.ps1` instala para el usuario actual; `.\uninstall.ps1` quita. Detalle en el README.
 
 ## Historia
-- 2026-10-07: port del exportador pyRevit/IronPython a C#, instalador, repo público, release v1.0.0, solicitud a SignPath enviada, política de firma agregada al README.
+- 2026-10-07: port del exportador pyRevit/IronPython a C#, instalador, repo público, release v1.0.0, solicitud a SignPath enviada y rechazada el mismo día (falta de reputación), README corregido.
