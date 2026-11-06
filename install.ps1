@@ -4,10 +4,14 @@
    - Dependencias npm (fijadas por package-lock.json) en %LOCALAPPDATA%\ArchiGlb.
    - Copia el add-in a %LOCALAPPDATA%\Programs\GLBExport y registra GLBExport.addin
      en %APPDATA%\Autodesk\Revit\Addins\<anio> para cada Revit instalado.
+   - Con -PyRevitDir <carpeta>: en vez de registrar el add-in, instala una extension de pyRevit
+     (<carpeta>\ArchiGlb.extension) con el boton GLB Export dentro de la pestana -Tab / panel -Panel
+     (por defecto Archi_Tools / Exportacion). No crea la pestana GLB ni el .addin.
  Uso: .\install.ps1 [-Source <carpeta con <anio>\GlbExport.dll y GlbExport\>]   (por defecto dist\addin)
+      .\install.ps1 -PyRevitDir C:\ArchiTools [-Tab Archi_Tools] [-Panel Exportacion] [-SkipNpm]
 #>
 [CmdletBinding()]
-param([string]$Source)
+param([string]$Source, [string]$PyRevitDir, [string]$Tab = 'Archi_Tools', [string]$Panel = 'Exportacion', [switch]$SkipNpm)
 $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path   # $PSScriptRoot no sirve como valor por defecto en PS 5.1
 if (-not $Source) {
@@ -45,16 +49,55 @@ if (-not $node) { Winget-Install 'OpenJS.NodeJS.LTS'; $node = Find-Node }
 if (-not $node) { throw 'Node.js se instalo pero no lo encuentro; abre una consola nueva y repite.' }
 Write-Host "Node: $node ($(& $node -v))"
 
-Step 'Dependencias (npm)'
-$deps = Join-Path $env:LOCALAPPDATA 'ArchiGlb'
-New-Item -ItemType Directory -Force $deps | Out-Null
-Copy-Item (Join-Path $Source 'GlbExport\package.json'), (Join-Path $Source 'GlbExport\package-lock.json') $deps -Force
-$npm = Join-Path (Split-Path $node) 'npm.cmd'
-$env:NPM_CONFIG_UPDATE_NOTIFIER = 'false'
-Push-Location $deps
-$ErrorActionPreference = 'Continue'   # npm escribe avisos en stderr
-try { & $npm ci --omit=dev --no-audit --no-fund; if ($LASTEXITCODE -ne 0) { throw 'npm ci fallo' } }
-finally { Pop-Location; $ErrorActionPreference = 'Stop' }
+if ($SkipNpm) { Write-Host 'Dependencias npm: omitidas (-SkipNpm)' } else {
+    Step 'Dependencias (npm)'
+    $deps = Join-Path $env:LOCALAPPDATA 'ArchiGlb'
+    New-Item -ItemType Directory -Force $deps | Out-Null
+    Copy-Item (Join-Path $Source 'GlbExport\package.json'), (Join-Path $Source 'GlbExport\package-lock.json') $deps -Force
+    $npm = Join-Path (Split-Path $node) 'npm.cmd'
+    $env:NPM_CONFIG_UPDATE_NOTIFIER = 'false'
+    Push-Location $deps
+    $ErrorActionPreference = 'Continue'   # npm escribe avisos en stderr
+    try { & $npm ci --omit=dev --no-audit --no-fund; if ($LASTEXITCODE -ne 0) { throw 'npm ci fallo' } }
+    finally { Pop-Location; $ErrorActionPreference = 'Stop' }
+}
+
+if ($PyRevitDir) {
+    Step "Extension de pyRevit en $PyRevitDir"
+    $tpl = Join-Path $here 'pyrevit\GLB Export.pushbutton'
+    if (-not (Test-Path $tpl)) { throw "No encuentro la plantilla del boton en $tpl" }
+    $ext = Join-Path $PyRevitDir 'ArchiGlb.extension'
+    if (Test-Path $ext) { Remove-Item -LiteralPath $ext -Recurse -Force }
+    $bin = Join-Path $ext 'bin'
+    New-Item -ItemType Directory -Force (Join-Path $bin 'GlbExport') | Out-Null
+    Copy-Item (Join-Path $Source 'GlbExport\*') (Join-Path $bin 'GlbExport') -Recurse -Force
+    $years = @()
+    foreach ($y in 2023..2027) {
+        $dll = Join-Path $Source "$y\GlbExport.dll"
+        if (Test-Path $dll) { Copy-Item $dll (Join-Path $bin "GlbExport_$y.dll") -Force; $years += $y }
+    }
+    if (-not $years) { throw "No hay GlbExport.dll compilados en $Source." }
+    $btn = Join-Path $ext "$Tab.tab\$Panel.panel\GLB Export.pushbutton"
+    New-Item -ItemType Directory -Force $btn | Out-Null
+    Copy-Item (Join-Path $tpl '*') $btn -Force
+    $json = @'
+{
+    "name": "ArchiGlb",
+    "description": "GLB Export (add-in compilado) como boton de pyRevit, dentro de una pestana existente.",
+    "author": "Archiplan-ER",
+    "version": "1.0.0",
+    "builtin": "False",
+    "default_enabled": "True",
+    "rocket_mode_compatible": "True"
+}
+'@
+    [IO.File]::WriteAllText((Join-Path $ext 'extension.json'), $json, (New-Object Text.UTF8Encoding $false))
+    Write-Host ("Extension lista para Revit: " + ($years -join ', '))
+    $registered = $years | Where-Object { Test-Path "$env:APPDATA\Autodesk\Revit\Addins\$_\GLBExport.addin" }
+    if ($registered) { Write-Warning 'El add-in tambien esta registrado (.addin): veras ademas la pestana GLB. uninstall.ps1 sin -PyRevitDir lo quita.' }
+    Write-Host "`nListo. Si falta, registra la carpeta en pyRevit (pyrevit extensions paths add `"$PyRevitDir`") y recarga pyRevit: veras GLB Export en $Tab > $Panel." -ForegroundColor Green
+    return
+}
 
 Step 'Add-in de Revit'
 $dest = Join-Path $env:LOCALAPPDATA 'Programs\GLBExport'

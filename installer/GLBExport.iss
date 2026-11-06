@@ -27,6 +27,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 Source: "..\dist\addin\*"; DestDir: "{app}\addin"; Flags: recursesubdirs createallsubdirs ignoreversion
 Source: "..\install.ps1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\pyrevit\*"; DestDir: "{app}\pyrevit"; Flags: recursesubdirs createallsubdirs ignoreversion
 Source: "..\uninstall.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Run]
