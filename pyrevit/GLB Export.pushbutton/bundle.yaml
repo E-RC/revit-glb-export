@@ -1,0 +1,10 @@
+title: "GLB\nExport"
+author: "Archiplan-ER"
+tooltip: |
+  Exporta la vista 3D activa a un GLB liviano para WebXR / Meta Quest, con instancias para los elementos repetidos.
+
+  Instrucciones:
+  1. Abre una vista 3D y ejecuta el comando.
+  2. Elige perfil y archivo de salida, ajusta las categorías si hace falta y exporta.
+
+  Solo se exporta lo visible en la vista. Toma unos minutos y Revit queda ocupado. Requiere Node.js y sus dependencias (las instala install.ps1).

@@ -30,6 +30,12 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 Then **restart Revit**. A **GLB** tab appears with the **GLB Export** button.
 
+**Option C: as a button inside an existing pyRevit tab** (needs [pyRevit](https://github.com/pyrevitlabs/pyRevit) 7+; no .addin and no GLB tab). Build as in option B, then:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -PyRevitDir C:\ArchiTools
+```
+This installs a small pyRevit extension, `C:\ArchiTools\ArchiGlb.extension`, with one DLL per Revit version (`bin\GlbExport_<year>.dll`), the converter (`bin\GlbExport\`) and a **GLB Export** button in the `Archi_Tools` tab, `Exportacion` panel (change them with `-Tab` and `-Panel`; pyRevit merges tabs and panels with the same name). Use a folder that pyRevit scans for `*.extension` folders (`pyrevit extensions paths add <folder>` if it is not registered), then reload pyRevit. `-SkipNpm` skips the npm step when the dependencies are already in place. Remove it with `.\uninstall.ps1 -PyRevitDir C:\ArchiTools`. The `.exe` installer from option A does not do this by itself: it leaves the files and `install.ps1` in `%LOCALAPPDATA%\GLBExportInstaller`, so run that `install.ps1` with `-PyRevitDir`.
+
 ### Smart App Control (important)
 Windows 11 *Smart App Control* (SAC) blocks any DLL that is not signed by a publicly trusted certificate, and Revit add-ins are DLLs. **Releases are currently not code-signed**, so on a PC with SAC on (common on new, managed PCs; it cannot be turned back on once disabled, and IT often controls it) Revit shows a "part of this app has been blocked" notice and the add-in does not load.
 
@@ -46,7 +52,7 @@ Signing is an open item: the free SignPath Foundation program declined the appli
 Your last settings are kept in `%APPDATA%\Archiplan\GlbExport\last.profile`.
 
 ## Uninstall
-Windows *Apps & features* > GLB Export for Revit, or `.\uninstall.ps1` (`-Deps` also removes the npm packages in `%LOCALAPPDATA%\ArchiGlb`). Node.js is left alone.
+Windows *Apps & features* > GLB Export for Revit, or `.\uninstall.ps1` (`-Deps` also removes the npm packages in `%LOCALAPPDATA%\ArchiGlb`; `-PyRevitDir <folder>` also removes `<folder>\ArchiGlb.extension`). Node.js is left alone.
 
 ## How it works
 `SceneExporter.cs` runs Revit's `CustomExporter` in two passes and writes `scene.json` + `data.bin`. `GlbExport/src/build.cjs` (Node, [glTF-Transform](https://gltf-transform.dev) + meshoptimizer) merges, simplifies and writes the GLB. Rules live in `GlbExport/rules.default.json`. The add-in has no third-party .NET dependencies, so it cannot clash with other add-ins.
@@ -60,13 +66,14 @@ dotnet test tests/GlbExport.Tests           # options and JSON writer
 Installer: install [Inno Setup 6](https://jrsoftware.org/isinfo.php), then `ISCC.exe /DAppVersion=1.0.0 installer\GLBExport.iss`. Pushing a tag `vX.Y.Z` builds and publishes it through GitHub Actions (the workflow can sign with SignPath if it is configured).
 
 ## Known limits
-Run end to end on Revit 2024 with a real 12 M triangle model (48 s export, 20 MB GLB). Revit 2023, 2025, 2026 and 2027 builds compile against their official APIs but have not been run yet; reports are welcome. The dialog is in Spanish. Large models take minutes and block Revit while exporting.
+Run end to end on Revit 2024 with a real 12 M triangle model (48 s export, 20 MB GLB), and on Revit 2025 (2026-11-06: the 2025 DLL loaded through the pyRevit button of option C, exporting from a 3D view; the `.addin` tab route on 2025 uses the same DLL but was not tried separately). Revit 2023, 2026 and 2027 builds compile against their official APIs but have not been run yet; reports are welcome. The dialog is in Spanish. Large models take minutes and block Revit while exporting.
 
 ---
 
 ## En español
 **Instalar:** descarga el `.exe` desde *Releases* y ejecútalo (no pide administrador). Registra el add-in en todas las versiones de Revit 2023 a 2027 que encuentre e instala Node.js si falta. Reinicia Revit: aparece la pestaña **GLB** con el botón **GLB Export**.
 **Smart App Control:** si está activo, Windows bloquea las DLL sin firma de una CA pública y los releases aún no están firmados. Usa un PC sin SAC o pide a TI una política App Control que confíe en un firmante.
+**Dentro de una pestaña de pyRevit:** `install.ps1 -PyRevitDir C:\ArchiTools` (tras compilar con `build.ps1`) instala la extensión `ArchiGlb.extension` con un botón **GLB Export** en la pestaña `Archi_Tools`, panel `Exportacion`, sin `.addin` ni pestaña GLB. Se cambian con `-Tab` y `-Panel`. Quítala con `uninstall.ps1 -PyRevitDir C:\ArchiTools`.
 **Usar:** abre una vista 3D, pulsa el botón, elige perfil y archivo de salida, y exporta. Solo se exporta lo visible en la vista.
 **Desinstalar:** *Aplicaciones* de Windows, o `uninstall.ps1`.
 
