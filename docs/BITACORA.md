@@ -5,7 +5,7 @@ Estado y pendientes del proyecto, para retomarlo desde cualquier equipo (`git cl
 ## Estado (2026-10-07)
 - Add-in .NET para Revit 2023 a 2027 (net48 para 2023/2024, net8 para 2025/2026, net10 para 2027). Una `GlbExport.dll` por versión, sin dependencias de terceros (a propósito: `System.Text.Json` choca con las DLL que Revit 2023/2024 ya carga).
 - Repo público https://github.com/E-RC/revit-glb-export. Release **v1.0.0 sin firma** (instalador `.exe` + `.sha256`, compilado por GitHub Actions).
-- Validado de punta a punta solo en **Revit 2024** con un modelo real (12,2 M de triángulos): exportación 48 s, GLB 20,7 MB. 2023, 2025, 2026 y 2027 compilan pero no se han ejecutado.
+- Validado de punta a punta en **Revit 2024** con un modelo real (12,2 M de triángulos): exportación 48 s, GLB 20,7 MB. **Revit 2025** (2026-11-06): funciona con la DLL de 2025 cargada desde el botón de pyRevit (`install.ps1 -PyRevitDir`), exportando desde una vista 3D; la vía de la pestaña GLB (`.addin`) en 2025 usa la misma DLL pero no se probó aparte. 2023, 2026 y 2027 compilan pero no se han ejecutado.
 - Pruebas: `node --test "GlbExport/test/*.test.cjs"` (11) y `dotnet test tests/GlbExport.Tests` (9).
 
 ## Problema abierto: Smart App Control (SAC)
@@ -23,7 +23,7 @@ Windows 11 con SAC activo bloquea toda DLL sin firma de una CA pública (tambié
 5. **Ruta Dynamo (sin DLL nueva):** reescribir el exportador como script de Dynamo/Python. Dynamo y su motor Python vienen firmados con Revit, así que funciona bajo SAC sin certificado. La prueba en vivo ya mostró que cargar el código desde memoria no lo bloquea SAC.
 6. **Reaplicar a SignPath Foundation** cuando haya tracción.
 ## Otros pendientes
-- Probar el add-in en Revit 2023, 2025, 2026 y 2027 y con vínculos.
+- Probar el add-in en Revit 2023, 2026 y 2027, la pestaña GLB (`.addin`) en 2025, y con vínculos.
 - Probar el instalador `.exe` en un PC limpio (sin Node.js).
 - El diálogo está solo en español.
 

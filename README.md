@@ -66,7 +66,7 @@ dotnet test tests/GlbExport.Tests           # options and JSON writer
 Installer: install [Inno Setup 6](https://jrsoftware.org/isinfo.php), then `ISCC.exe /DAppVersion=1.0.0 installer\GLBExport.iss`. Pushing a tag `vX.Y.Z` builds and publishes it through GitHub Actions (the workflow can sign with SignPath if it is configured).
 
 ## Known limits
-Run end to end on Revit 2024 with a real 12 M triangle model (48 s export, 20 MB GLB). Revit 2023, 2025, 2026 and 2027 builds compile against their official APIs but have not been run yet; reports are welcome. The dialog is in Spanish. Large models take minutes and block Revit while exporting.
+Run end to end on Revit 2024 with a real 12 M triangle model (48 s export, 20 MB GLB), and on Revit 2025 (2026-11-06: the 2025 DLL loaded through the pyRevit button of option C, exporting from a 3D view; the `.addin` tab route on 2025 uses the same DLL but was not tried separately). Revit 2023, 2026 and 2027 builds compile against their official APIs but have not been run yet; reports are welcome. The dialog is in Spanish. Large models take minutes and block Revit while exporting.
 
 ---
 
